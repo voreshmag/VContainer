@@ -12,7 +12,9 @@ namespace VContainer.Unity
 
         [SerializeField]
         [Tooltip("Set the Prefab to be the parent of the entire Project.")]
-        public LifetimeScope RootLifetimeScope;
+        public LifetimeScope RootLifetimeScopePrefab;
+        
+        public LifetimeScope RootLifetimeScope { get; private set; }
 
         [SerializeField]
         [Tooltip("Enables the collection of information that can be viewed in the VContainerDiagnosticsWindow. Note: Performance degradation")]
@@ -53,8 +55,8 @@ namespace VContainer.Unity
             var preloadAsset = UnityEditor.PlayerSettings.GetPreloadedAssets().FirstOrDefault(x => x is VContainerSettings);
             if (preloadAsset is VContainerSettings instance)
             {
-                if (instance.RootLifetimeScope != null)
-                    instance.RootLifetimeScope.DisposeCore();
+                if (instance.RootLifetimeScopePrefab != null)
+                    instance.RootLifetimeScopePrefab.DisposeCore();
                 instance.OnEnable();
             }
         }
@@ -71,9 +73,11 @@ namespace VContainer.Unity
         {
             if (Application.isPlaying)
             {
-                if (RootLifetimeScope != null)
+                if (RootLifetimeScopePrefab != null)
                 {
-                    RootLifetimeScope.IsRoot = true;
+                    RootLifetimeScopePrefab.IsRoot = true;
+                    RootLifetimeScope = Instantiate(RootLifetimeScopePrefab);
+                    DontDestroyOnLoad(RootLifetimeScope.gameObject);
                 }
 
                 Instance = this;
